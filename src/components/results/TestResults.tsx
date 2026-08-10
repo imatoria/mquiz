@@ -338,11 +338,11 @@ export const TestResults = () => {
         title: "AI Re-check Completed",
         description: `AI rechecked ${updateCount} question(s). ${changedCount > 0 ? `Updated ${changedCount} answer key(s) in DB.` : 'All answer keys verified.'}`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('AI Recheck error:', error);
       toast({
         title: "Recheck Failed",
-        description: "An error occurred while rechecking questions with AI.",
+        description: error?.message || "An error occurred while rechecking questions with AI.",
         variant: "destructive"
       });
     } finally {
@@ -381,11 +381,11 @@ export const TestResults = () => {
         title: "AI Explanations Generated",
         description: `Generated step-by-step reasoning and shortcut tricks for ${selectedQuestionIds.size} selected question(s).`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Explanation error:', error);
       toast({
         title: "Explanation Failed",
-        description: "An error occurred while generating AI explanations.",
+        description: error?.message || "An error occurred while generating AI explanations.",
         variant: "destructive"
       });
     } finally {

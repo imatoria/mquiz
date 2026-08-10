@@ -66,7 +66,7 @@ export async function getOrderedActiveAIConfigs(): Promise<AIConfigPipelineItem[
       if (keys && keys.length > 0) {
         userKeys = keys;
       } else {
-        // Find teacher keys via student-teacher relationship
+        // Find teacher keys ONLY via student-teacher relationship
         const { data: rels } = await dbService.getProvider().query(
           'SELECT teacher_id FROM teacher_student_relationships WHERE student_id = ?',
           [currentUser.id]
@@ -82,19 +82,6 @@ export async function getOrderedActiveAIConfigs(): Promise<AIConfigPipelineItem[
             userKeys = teacherKeys;
           }
         }
-      }
-    }
-
-    // System-wide fallback: if userKeys is still empty, get keys configured by any teacher or admin
-    if (!userKeys || userKeys.length === 0) {
-      const { data: sysKeys } = await dbService.getProvider().query(
-        `SELECT k.* FROM user_ai_provider_keys k 
-         JOIN profiles p ON k.user_id = p.user_id 
-         WHERE p.role IN ('teacher', 'admin') 
-         ORDER BY k.created_at DESC`
-      );
-      if (sysKeys && sysKeys.length > 0) {
-        userKeys = sysKeys;
       }
     }
 
@@ -153,6 +140,9 @@ export async function recheckQuestionWithAI(
   options: QuestionOptions
 ): Promise<RecheckAIResult> {
   const pipeline = await getOrderedActiveAIConfigs();
+  if (pipeline.length === 0) {
+    throw new Error("No AI Provider key configured for your assigned teacher. Please ask your teacher to configure an AI API key in Settings.");
+  }
 
   const prompt = `You are an expert academic evaluator. Analyze the following question and choices thoroughly using thinking mode.
 Do NOT guess. Choose the single most accurate option (A, B, C, or D).
@@ -329,6 +319,9 @@ export async function generateExplanationWithAI(
   correctOptionKey: string
 ): Promise<ExplanationAIResult> {
   const pipeline = await getOrderedActiveAIConfigs();
+  if (pipeline.length === 0) {
+    throw new Error("No AI Provider key configured for your assigned teacher. Please ask your teacher to configure an AI API key in Settings.");
+  }
 
   const rawKey = (correctOptionKey || '').trim().toLowerCase();
   let keyUpper = 'A';
