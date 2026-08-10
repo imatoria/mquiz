@@ -1,73 +1,48 @@
-# Welcome to your Lovable project
+# mquiz
 
-## Project info
+An advanced, offline-first educational examination & test paper creation platform featuring multi-provider AI question generation (OpenAI, Gemini, DeepSeek, Groq), automated answer re-checking, step-by-step rationale generation, and in-browser SQLite database storage.
 
-**URL**: https://lovable.dev/projects/41f30c1d-6163-4398-9df9-c80a64afbceb
+## Features
 
-## How can I edit this code?
+- **Multi-Provider AI Pipeline**: Configurable priority ordering with automatic failover across OpenAI, Google Gemini, DeepSeek, and Groq.
+- **Book & Topic AI Question Generation**: Generate high-quality multiple choice and True/False questions from custom topics or textbook pages.
+- **Answer Verification & Explanations**: Smart unbiased AI answer re-check with step-by-step reasoning and shortcut/elimination tips.
+- **In-Browser SQLite Storage**: Fast offline-first persistence powered by WebAssembly.
 
-There are several ways of editing your application.
+## Getting Started
 
-**Use Lovable**
+### Requirements
+- Node.js (v18+) & npm
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/41f30c1d-6163-4398-9df9-c80a64afbceb) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Development Setup
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Clone the repository
+git clone https://github.com/imatoria/mquiz.git
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to project directory
+cd mquiz
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Run local development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Build & Preview
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```sh
+# Build for production
+npm run build
 
-**Use GitHub Codespaces**
+# Preview production build locally
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Built With
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/41f30c1d-6163-4398-9df9-c80a64afbceb) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- **Framework**: React + Vite + TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Icons**: Lucide React
+- **Database**: In-Browser SQLite WASM
