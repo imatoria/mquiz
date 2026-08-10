@@ -63,7 +63,39 @@ export async function getOrderedActiveAIConfigs(): Promise<AIConfigPipelineItem[
         'SELECT * FROM user_ai_provider_keys WHERE user_id = ?',
         [currentUser.id]
       );
-      userKeys = keys || [];
+      if (keys && keys.length > 0) {
+        userKeys = keys;
+      } else {
+        // Find teacher keys via student-teacher relationship
+        const { data: rels } = await dbService.getProvider().query(
+          'SELECT teacher_id FROM teacher_student_relationships WHERE student_id = ?',
+          [currentUser.id]
+        );
+        if (rels && rels.length > 0) {
+          const teacherIds = rels.map((r: any) => r.teacher_id);
+          const placeholders = teacherIds.map(() => '?').join(',');
+          const { data: teacherKeys } = await dbService.getProvider().query(
+            `SELECT * FROM user_ai_provider_keys WHERE user_id IN (${placeholders})`,
+            teacherIds
+          );
+          if (teacherKeys && teacherKeys.length > 0) {
+            userKeys = teacherKeys;
+          }
+        }
+      }
+    }
+
+    // System-wide fallback: if userKeys is still empty, get keys configured by any teacher or admin
+    if (!userKeys || userKeys.length === 0) {
+      const { data: sysKeys } = await dbService.getProvider().query(
+        `SELECT k.* FROM user_ai_provider_keys k 
+         JOIN profiles p ON k.user_id = p.user_id 
+         WHERE p.role IN ('teacher', 'admin') 
+         ORDER BY k.created_at DESC`
+      );
+      if (sysKeys && sysKeys.length > 0) {
+        userKeys = sysKeys;
+      }
     }
 
     if (activeProviders && activeProviders.length > 0) {
@@ -298,14 +330,35 @@ export async function generateExplanationWithAI(
 ): Promise<ExplanationAIResult> {
   const pipeline = await getOrderedActiveAIConfigs();
 
-  const keyUpper = correctOptionKey.toUpperCase();
+  const rawKey = (correctOptionKey || '').trim().toLowerCase();
+  let keyUpper = 'A';
+  if (['a', 'b', 'c', 'd'].includes(rawKey)) {
+    keyUpper = rawKey.toUpperCase();
+  } else if (options.option_a && rawKey === options.option_a.trim().toLowerCase()) {
+    keyUpper = 'A';
+  } else if (options.option_b && rawKey === options.option_b.trim().toLowerCase()) {
+    keyUpper = 'B';
+  } else if (options.option_c && rawKey === options.option_c.trim().toLowerCase()) {
+    keyUpper = 'C';
+  } else if (options.option_d && rawKey === options.option_d.trim().toLowerCase()) {
+    keyUpper = 'D';
+  } else if (rawKey.includes('option a')) {
+    keyUpper = 'A';
+  } else if (rawKey.includes('option b')) {
+    keyUpper = 'B';
+  } else if (rawKey.includes('option c')) {
+    keyUpper = 'C';
+  } else if (rawKey.includes('option d')) {
+    keyUpper = 'D';
+  }
+
   const optMap: Record<string, string> = {
     'A': options.option_a,
     'B': options.option_b,
     'C': options.option_c,
     'D': options.option_d
   };
-  const correctText = optMap[keyUpper] || options.option_a;
+  const correctText = optMap[keyUpper] || options.option_a || correctOptionKey;
 
   const prompt = `You are an elite tutor. Analyze this exam question and explain the solution thoroughly.
 
